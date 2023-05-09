@@ -99,6 +99,10 @@ To copy your `kube config` locally so that you can access your **Kubernetes** cl
 scp debian@master_ip:~/.kube/config ~/.kube/config
 ```
 
+Alternatively, the kubeconfig file is located on the master node in [/etc/rancher/k3s/k3s.yaml](https://docs.k3s.io/cluster-access)
+
+
+
 ### 🔨 Testing your cluster
 
 See the commands [here](https://docs.technotim.live/posts/k3s-etcd-ansible/#testing-your-cluster).
