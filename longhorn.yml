@@ -1,0 +1,32 @@
+---
+- hosts: k3s_cluster
+  vars:
+    storage_volumes:
+      - name: barefs 
+        type: disk
+        disks:
+          - /dev/vdb
+        fs_type: xfs
+        mount_point: /mnt/data
+
+  roles:
+    - linux-system-roles.storage
+  
+#- hosts: k3s_cluster
+#  tasks: 
+#  - name: Check to see if external disk attached
+#    command: lsblk -f
+#    register: lsblk_output
+#  - debug: msg="{{lsblk_output.stdout}}"
+#  - debug: msg="{{lsblk_output.stdout}}"
+#
+#  - name: Wipe the external disk
+#    command: df -hPT
+
+
+#  ansible -i inventory/my-cluster/hosts.ini k3s_cluster --become-user centos --private-key ../kvm-terraform/id_rsa  -m shell -a "lsblk -f"
+#  ansible -i inventory/my-cluster/hosts.ini k3s_cluster --become-user centos --private-key ../kvm-terraform/id_rsa  -m shell -a "sudo wipefs -a /dev/{{ var_disk}}"
+#  ansible -i inventory/my-cluster/hosts.ini k3s_cluster --become-user centos --private-key ../kvm-terraform/id_rsa  -m filesystem -a "fstype=ext4 /dev/{{ var_disk}}"
+
+
+
