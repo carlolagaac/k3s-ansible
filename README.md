@@ -129,3 +129,18 @@ This repo is really standing on the shoulders of giants. Thank you to all those 
 - [k3s-io/k3s-ansible](https://github.com/k3s-io/k3s-ansible)
 - [geerlingguy/turing-pi-cluster](https://github.com/geerlingguy/turing-pi-cluster)
 - [212850a/k3s-ansible](https://github.com/212850a/k3s-ansible)
+
+
+Extras needed for Longhorn
+Check the version of longhorn installed
+helm list --all-namespaces
+helm list -n longhorn-system
+curl -sSfL https://raw.githubusercontent.com/longhorn/longhorn/v1.5.1/scripts/environment_check.sh | bash
+dnf -y install scsi-target-utils 
+dnf -y install nfs-utils
+yum -y install iscsi-initiator-utils
+
+helm install longhorn longhorn/longhorn --namespace longhorn-system --create-namespace --set defaultSettings.defaultDataPath="/mnt/data"
+
+kubectl -n longhorn-system get pod
+kubectl -n longhorn-system get svc

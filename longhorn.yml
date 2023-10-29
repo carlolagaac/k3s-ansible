@@ -1,16 +1,40 @@
 ---
-- hosts: k3s_cluster
-  vars:
-    storage_volumes:
-      - name: barefs 
-        type: disk
-        disks:
-          - /dev/vdb
-        fs_type: xfs
-        mount_point: /mnt/data
+- name: Configure external disk and create filesystem 
+  hosts: k3s_cluster
+  tasks:
+  - name: Create /mnt/data`` directory if it does not exist
+    become: true
+    ansible.builtin.file:
+      path: /mnt/data
+      state: directory
+      mode: '0755'
 
-  roles:
-    - linux-system-roles.storage
+  - name: Create a btrfs filesystem on /dev/vdb
+    become: true
+    community.general.filesystem:
+      fstype: btrfs
+      dev: /dev/vdb
+
+  - name: Mount up device by label
+    become: true
+    ansible.posix.mount:
+      path: /mnt/data
+      src: /dev/vdb
+      fstype: btrfs
+      state: present
+
+
+#  vars:
+#    storage_volumes:
+#      - name: barefs 
+#        type: disk
+#        disks:
+#          - vdb
+#        fs_type: xfs
+#        mount_point: /mnt/data
+
+#  roles:
+#    - linux-system-roles.storage
   
 #- hosts: k3s_cluster
 #  tasks: 
@@ -27,6 +51,3 @@
 #  ansible -i inventory/my-cluster/hosts.ini k3s_cluster --become-user centos --private-key ../kvm-terraform/id_rsa  -m shell -a "lsblk -f"
 #  ansible -i inventory/my-cluster/hosts.ini k3s_cluster --become-user centos --private-key ../kvm-terraform/id_rsa  -m shell -a "sudo wipefs -a /dev/{{ var_disk}}"
 #  ansible -i inventory/my-cluster/hosts.ini k3s_cluster --become-user centos --private-key ../kvm-terraform/id_rsa  -m filesystem -a "fstype=ext4 /dev/{{ var_disk}}"
-
-
-

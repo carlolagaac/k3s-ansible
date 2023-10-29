@@ -1,3 +1,3 @@
-#!/bin/bash
-HOME=../
-ansible-playbook longhorn.yml -i inventory/my-cluster/hosts.ini  --user centos --key-file $HOME/kvm-terraform/id_rsa
+#  ansible -i inventory/my-cluster/hosts.ini k3s_cluster --become-user centos --private-key ../kvm-terraform/id_rsa  -m shell -a "lsblk -f"
+ansible -i inventory/my-cluster/hosts.ini k3s_cluster --become-user centos --private-key ../kvm-terraform/id_rsa  -m shell -a "sudo wipefs -a /dev/{{ var_disk}}"
+ansible -i inventory/my-cluster/hosts.ini k3s_cluster --become-user centos --private-key ../kvm-terraform/id_rsa  -m filesystem -a "fstype=ext4 /dev/{{ var_disk}}"
