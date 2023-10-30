@@ -29,7 +29,7 @@
 
   tasks:
 
-    - name: Install system updates for Red Hat based systems
+    - name: Install iscsi and nfs utils for longhorn
       yum:
         name: 'scsi-target-utils,nfs-utils,iscsi-initiator-utils'
         state: latest
