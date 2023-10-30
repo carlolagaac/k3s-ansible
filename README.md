@@ -131,6 +131,16 @@ This repo is really standing on the shoulders of giants. Thank you to all those 
 - [212850a/k3s-ansible](https://github.com/212850a/k3s-ansible)
 
 
+## Label Worker Nodes
+kubectl label nodes k3s-server-1 kubernetes.io/role=worker
+kubectl label nodes k3s-server-2 kubernetes.io/role=worker
+kubectl label nodes k3s-server-3 kubernetes.io/role=worker
+
+kubectl label nodes k3s-server-1 node-type=worker
+kubectl label nodes k3s-server-2 node-type=worker
+kubectl label nodes k3s-server-3 node-type=worker
+
+
 Extras needed for Longhorn
 ssh to control node
 #Create a directory for helm
@@ -195,7 +205,7 @@ spec:
 
 
 
-mkdir prometheus-monitor
+mkdir prometheus-operator
 wget https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/bundle.yaml
 grep 'namespace: default' bundle.yaml
 sed -i 's/namespace: default/namespace: monitoring/g' bundle.yaml
@@ -203,7 +213,7 @@ sed -i 's/namespace: default/namespace: monitoring/g' bundle.yaml
 kubectl create namespace monitoring
 kubectl apply --server-side -f bundle.yaml
 
-cd montoring
+cd monitoring
 mkdir service-monitoring
 cd service-monitoring
 
@@ -834,7 +844,7 @@ prometheus.yaml
 apiVersion: monitoring.coreos.com/v1
 kind: Prometheus
 metadata:
-  name: prometheus-persistant
+  name: prometheus-persistent
   namespace: monitoring
 spec:
   replicas: 1
@@ -878,7 +888,7 @@ metadata:
   namespace: monitoring
 spec:
   selector:
-    prometheus: prometheus-persistant
+    prometheus: prometheus-persistent
   type: LoadBalancer
   ports:
     - name: web
@@ -901,7 +911,7 @@ spec:
     port: 9090
     targetPort: web
   selector:
-    prometheus: prometheus-persistant
+    prometheus: prometheus-persistent
   sessionAffinity: ClientIP
 
 
@@ -951,11 +961,107 @@ rules:
   verbs: ["get"]
 
 
-kubectl label nodes k3s-server-1 kubernetes.io/role=worker
-kubectl label nodes k3s-server-2 kubernetes.io/role=worker
-kubectl label nodes k3s-server-3 kubernetes.io/role=worker
-kubectl label nodes k3s-server-4 kubernetes.io/role=worker
 
 
 cd ..
 kubectl apply -f prometheus/
+
+
+mkdir grafana
+grafana-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: longhorn-grafana-pvc
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi
+
+
+grafana-deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: grafana
+  name: grafana
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - env: []
+        image: grafana/grafana:latest
+        name: grafana
+        ports:
+        - containerPort: 3000
+          name: http
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: http
+        resources:
+          limits:
+            cpu: 200m
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        volumeMounts:
+        - mountPath: /var/lib/grafana
+          name: grafana-storage
+          readOnly: false
+      nodeSelector:
+        node-type: worker
+      securityContext:
+        fsGroup: 65534
+        runAsNonRoot: true
+        runAsUser: 65534
+      serviceAccountName: grafana
+      volumes:
+        - name: grafana-storage
+          persistentVolumeClaim:
+            claimName: longhorn-grafana-pvc
+
+
+
+grafana-serviceAccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: grafana
+  namespace: monitoring
+
+
+grafana-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  selector:
+    app: grafana
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 3000
+    targetPort: http
+  loadBalancerIP: 192.168.10.246
+
+
+Working
+
