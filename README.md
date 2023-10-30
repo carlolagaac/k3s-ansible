@@ -168,6 +168,32 @@ helm install longhorn longhorn/longhorn --namespace longhorn-system --create-nam
 kubectl -n longhorn-system get pod
 kubectl -n longhorn-system get svc
 
+Portainer
+
+helm repo add portainer https://portainer.github.io/k8s/
+helm repo update
+
+helm install --create-namespace -n portainer portainer portainer/portainer
+
+portainer-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: portainer
+  namespace: portainer
+spec:
+  selector:
+    app.kubernetes.io/name: portainer
+    app.kubernetes.io/instance: portainer
+  type: LoadBalancer
+  ports:
+    - name: http
+      protocol: TCP
+      port: 9000
+      targetPort: 9000
+  loadBalancerIP: 192.168.10.247
+
+
 
 mkdir prometheus-monitor
 wget https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/bundle.yaml

@@ -23,6 +23,23 @@
       fstype: btrfs
       state: present
 
+- name: Install longhorn pre-reqs
+  hosts: all
+  become: yes
+
+  tasks:
+
+    - name: Install system updates for Red Hat based systems
+      yum:
+        name: 'scsi-target-utils,nfs-utils,iscsi-initiator-utils'
+        state: latest
+        update_cache: yes
+       #cache_valid_time: 3600
+      when:
+        - ansible_os_family == "RedHat"
+        - ansible_distribution == "Fedora"
+
+
 
 #  vars:
 #    storage_volumes:
