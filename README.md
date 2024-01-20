@@ -184,6 +184,7 @@ helm repo add portainer https://portainer.github.io/k8s/
 helm repo update
 
 helm install --create-namespace -n portainer portainer portainer/portainer --values values.yaml
+helm install --create-namespace -n portainer portainer portainer/portainer 
 
 portainer-svc.yaml
 apiVersion: v1
@@ -206,6 +207,7 @@ spec:
 
 
 mkdir prometheus-operator
+cd prometheus-operator
 wget https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/bundle.yaml
 grep 'namespace: default' bundle.yaml
 sed -i 's/namespace: default/namespace: monitoring/g' bundle.yaml
