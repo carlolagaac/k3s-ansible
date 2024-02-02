@@ -183,8 +183,8 @@ Portainer
 helm repo add portainer https://portainer.github.io/k8s/
 helm repo update
 
-helm install --create-namespace -n portainer portainer portainer/portainer --values values.yaml
 helm install --create-namespace -n portainer portainer portainer/portainer 
+kubectl apply -f portainer-svc.yaml
 
 portainer-svc.yaml
 apiVersion: v1
