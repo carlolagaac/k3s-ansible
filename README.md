@@ -166,7 +166,7 @@ root@ControlNode1:~/helm# arkade version
 Check the version of longhorn installed
 helm list --all-namespaces
 helm list -n longhorn-system
-curl -sSfL https://raw.githubusercontent.com/longhorn/longhorn/v1.5.1/scripts/environment_check.sh | bash
+curl -sSfL https://raw.githubusercontent.com/longhorn/longhorn/v1.5.3/scripts/environment_check.sh | bash
 dnf -y install scsi-target-utils 
 dnf -y install nfs-utils
 yum -y install iscsi-initiator-utils
@@ -184,7 +184,11 @@ helm repo add portainer https://portainer.github.io/k8s/
 helm repo update
 
 helm install --create-namespace -n portainer portainer portainer/portainer 
+helm install -n portainer portainer portainer/portainer 
 kubectl apply -f portainer-svc.yaml
+
+Uninstall - helm uninstall -n portainer portainer/portainer 
+
 
 portainer-svc.yaml
 apiVersion: v1
